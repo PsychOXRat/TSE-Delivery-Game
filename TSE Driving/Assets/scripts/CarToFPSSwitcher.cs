@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CarToFPSSwitcher : MonoBehaviour
 {
     public GameObject carCam;
     public GameObject player;
     public CarController car;
+    public GameObject carUI;
     public GameObject playerCarSpawnPoint;
     public bool isWalking = true;
     // Start is called before the first frame update
@@ -26,6 +28,7 @@ public class CarToFPSSwitcher : MonoBehaviour
                 player.SetActive(false);
                 carCam.SetActive(true);
                 car.isDriving = true;
+                carUI.SetActive(true);
             }
             else
             {
@@ -33,6 +36,7 @@ public class CarToFPSSwitcher : MonoBehaviour
                 car.isDriving = false;
                 car.horizontalInput = 0;
                 car.verticalInput = 0;
+                carUI.SetActive(false);
                 carCam.SetActive(false);
                 player.transform.position = playerCarSpawnPoint.transform.position;
                 player.SetActive(true);
