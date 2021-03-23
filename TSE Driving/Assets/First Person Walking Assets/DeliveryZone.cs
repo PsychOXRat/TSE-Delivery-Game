@@ -6,22 +6,26 @@ public class DeliveryZone : MonoBehaviour
 {
     public string destination;
     private bool delivered = false;
-    private DeliveryZone deliveryZone;
+    public GameObject deliveryZoneCompleted;
+    public GameplayManager gameManager;
 
     private void Start()
     {
-        deliveryZone = this.GetComponent<DeliveryZone>();
+        GameObject gameManagerObject = GameObject.Find("GameManager");
+        gameManager = gameManagerObject.GetComponent<GameplayManager>();
     }
     private void OnTriggerStay(Collider other)
     {
         if (other.tag == "Cargo" && other.GetComponent<PhysicsObject>().pickedUp == false && other.GetComponent<PhysicsObject>().destination == destination)
         {
             other.gameObject.layer = LayerMask.NameToLayer("CargoDelivered");
-            for (int i = 0;  i < this.GetComponentsInChildren<ParticleSystem>().Length; i++)
-            {
-                this.GetComponentsInChildren<ParticleSystem>()[i].Play();
-            }
-            deliveryZone.enabled = false;
+            //for (int i = 0;  i < this.GetComponentsInChildren<ParticleSystem>().Length; i++)
+            //{
+            //    this.GetComponentsInChildren<ParticleSystem>()[i].Play();
+            //}
+            gameManager.currentDelivered += 1;
+            deliveryZoneCompleted.SetActive(true);
+            this.gameObject.SetActive(false);
         }
     }
 }
