@@ -7,6 +7,7 @@ public class CarToFPSSwitcher : MonoBehaviour
 {
     public GameObject carCam;
     public GameObject player;
+    public CastController castControl;
     public CarController car;
     public GameObject carUI;
     public GameObject playerCarSpawnPoint;
@@ -22,13 +23,17 @@ public class CarToFPSSwitcher : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            if (isWalking)
+            if (isWalking && !castControl.isHolding)
             {
                 isWalking = false;
                 player.SetActive(false);
                 carCam.SetActive(true);
                 car.isDriving = true;
                 carUI.SetActive(true);
+            }
+            else if (castControl.isHolding)
+            {
+
             }
             else
             {

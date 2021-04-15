@@ -5,8 +5,13 @@ using UnityEngine;
 
 public class MenuButtonScript : MonoBehaviour
 {
-    public void LevelButton(string name)
+    public void LevelButton(int levelNum)
     {
-        SceneManager.LoadScene(name, LoadSceneMode.Single);
+        SceneManager.LoadScene(levelNum, LoadSceneMode.Single);
     }
+    public void QuitButton()
+    {
+        Application.Quit();
+    }
+
 }

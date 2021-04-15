@@ -16,12 +16,19 @@ public class GameplayManager : MonoBehaviour
     public GameObject endUI;
     public GameObject endLoseUI;
     public Text deliveryText;
+    public CastController castControl;
+    public MouseHandler mouseHandler;
+    public PlayerController playerControl;
 
     // Start is called before the first frame update
     void Start()
     {
+        castControl.enabled = false;
+        mouseHandler.enabled = false;
+        playerControl.enabled = false;
         Time.timeScale = 0;
         timer = this.GetComponent<Timer>();
+        Cursor.lockState = CursorLockMode.None;
     }
 
     // Update is called once per frame
@@ -33,30 +40,34 @@ public class GameplayManager : MonoBehaviour
             {
                 gameUI.SetActive(false);
                 endLoseUI.SetActive(true);
+                castControl.enabled = false;
+                mouseHandler.enabled = false;
+                playerControl.enabled = false;
+                Cursor.lockState = CursorLockMode.None;
             }
             else if (currentDelivered == maxDeliveryZones)
             {
                 gameUI.SetActive(false);
                 timer.timerIsRunning = false;
                 endUI.SetActive(true);
+                castControl.enabled = false;
+                mouseHandler.enabled = false;
+                playerControl.enabled = false;
+                Cursor.lockState = CursorLockMode.None;
             }
             deliveryText.text = string.Format("Deliveries: {0}/{1}", currentDelivered, maxDeliveryZones);
         }
-        else if(Input.GetKeyDown(KeyCode.Space))
-        {
-            startUI.SetActive(false);
-            gameUI.SetActive(true);
-            Time.timeScale = 1;
-            timer.timerIsRunning = true;
-            started = true;
-        }
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene(1);
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SceneManager.LoadScene(0);
-        }
+    }
+    public void GameStart()
+    {
+        startUI.SetActive(false);
+        gameUI.SetActive(true);
+        castControl.enabled = true;
+        mouseHandler.enabled = true;
+        playerControl.enabled = true;
+        Time.timeScale = 1;
+        timer.timerIsRunning = true;
+        started = true;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }

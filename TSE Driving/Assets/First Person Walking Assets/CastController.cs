@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CastController : MonoBehaviour
 {
+    [Header("Debug Info")]
+    public bool isHolding = false;
+
     [Header("InteractableInfo")]
     public float sphereCastRadius = 0.5f;
     public LayerMask CargoLayer;
@@ -69,7 +72,7 @@ public class CastController : MonoBehaviour
                 //and we are looking an interactable object
                 if (lookObject != null)
                 {
-
+                    isHolding = true;
                     PickUpObject();
                 }
 
@@ -78,6 +81,7 @@ public class CastController : MonoBehaviour
             else
             {
                 BreakConnection();
+                isHolding = false;
             }
         }
 
