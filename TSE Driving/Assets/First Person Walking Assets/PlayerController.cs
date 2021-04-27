@@ -37,7 +37,6 @@ public class PlayerController : MonoBehaviour
         float vertical = Input.GetAxis("Vertical") * movementSpeed;
         cam = Camera.main.transform;
         camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
-
         characterController.Move((Camera.main.transform.right * horizontal + camForward * vertical) * Time.deltaTime);
 
         if (isGrounded && Input.GetKey(KeyCode.Space))
