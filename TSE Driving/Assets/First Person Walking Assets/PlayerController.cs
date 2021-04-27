@@ -14,6 +14,9 @@ public class PlayerController : MonoBehaviour
     public Transform groundChecker;
     public LayerMask ground;
     public float groundDistance = 0.1f;
+    public Vector3 camForward;
+    public Transform cam;
+    public Vector3 MoveVector;
 
     private void Start()
     {
@@ -32,7 +35,10 @@ public class PlayerController : MonoBehaviour
         // player movement - forward, backward, left, right
         float horizontal = Input.GetAxis("Horizontal") * movementSpeed;
         float vertical = Input.GetAxis("Vertical") * movementSpeed;
-        characterController.Move((Camera.main.transform.right * horizontal + Camera.main.transform.forward * vertical) * Time.deltaTime);
+        cam = Camera.main.transform;
+        camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
+
+        characterController.Move((Camera.main.transform.right * horizontal + camForward * vertical) * Time.deltaTime);
 
         if (isGrounded && Input.GetKey(KeyCode.Space))
         {
