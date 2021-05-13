@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/PolygonTown/Scenes/Demo.unity
     guid: 54e9644b66e21b441b9a6eb04b6dad58
+  - enabled: 1
+    path: Assets/PolygonTown/Scenes/Lvl2.unity
+    guid: 4bfbab51d10386c4699abc85dd7c88fc
   m_configObjects: {}

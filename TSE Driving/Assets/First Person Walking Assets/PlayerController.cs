@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     CharacterController characterController;
-    public float movementSpeed = 1f;
+    public float movementSpeed = 5f;
     public float gravity = 9.8f;
     private Vector3 velocity = new Vector3(0, 0, 0);
     public float jumpHeight = 2.0f;
@@ -14,9 +14,11 @@ public class PlayerController : MonoBehaviour
     public Transform groundChecker;
     public LayerMask ground;
     public float groundDistance = 0.1f;
-    public Vector3 camForward;
-    public Transform cam;
-    public Vector3 MoveVector;
+    public GameObject objectForRotate;
+
+    private Vector3 camForward;
+    private Transform cam;
+    private Vector3 moveVector;
 
     private void Start()
     {
@@ -33,11 +35,26 @@ public class PlayerController : MonoBehaviour
         }
 
         // player movement - forward, backward, left, right
-        float horizontal = Input.GetAxis("Horizontal") * movementSpeed;
-        float vertical = Input.GetAxis("Vertical") * movementSpeed;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        //characterController.Move((Camera.main.transform.right * horizontal + Camera.main.transform.forward * vertical) * Time.deltaTime);
+
+        GetComponentInParent<Transform>().rotation = Quaternion.Euler(0, objectForRotate.transform.rotation.eulerAngles.y, 0);
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            movementSpeed = 5f;
+        }
+        else
+        {
+            movementSpeed = 3f;
+        }
+
         cam = Camera.main.transform;
         camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
-        characterController.Move((Camera.main.transform.right * horizontal + camForward * vertical) * Time.deltaTime);
+        moveVector = (vertical * camForward + horizontal * Camera.main.transform.right);
+        //moveVector *= Time.deltaTime;
+        moveVector *= movementSpeed;
 
         if (isGrounded && Input.GetKey(KeyCode.Space))
         {
@@ -45,6 +62,8 @@ public class PlayerController : MonoBehaviour
         }
 
         velocity.y -= gravity * Time.deltaTime;
+
+        velocity.Set(moveVector.x, velocity.y, moveVector.z);
         characterController.Move(velocity * Time.deltaTime);
 
 

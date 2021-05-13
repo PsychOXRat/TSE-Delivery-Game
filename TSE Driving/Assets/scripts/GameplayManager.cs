@@ -19,6 +19,10 @@ public class GameplayManager : MonoBehaviour
     public CastController castControl;
     public MouseHandler mouseHandler;
     public PlayerController playerControl;
+    public CarToFPSSwitcher switcher;
+    public bool canEnter = false;
+    public GameObject enterText;
+    public GameObject mapUI;
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +48,7 @@ public class GameplayManager : MonoBehaviour
                 mouseHandler.enabled = false;
                 playerControl.enabled = false;
                 Cursor.lockState = CursorLockMode.None;
+                Time.timeScale = 0;
             }
             else if (currentDelivered == maxDeliveryZones)
             {
@@ -54,8 +59,26 @@ public class GameplayManager : MonoBehaviour
                 mouseHandler.enabled = false;
                 playerControl.enabled = false;
                 Cursor.lockState = CursorLockMode.None;
+                Time.timeScale = 0;
+
             }
             deliveryText.text = string.Format("Deliveries: {0}/{1}", currentDelivered, maxDeliveryZones);
+            if (Input.GetKey(KeyCode.Tab) && Time.timeScale == 1)
+            {
+                mapUI.SetActive(true);
+            }
+            else
+            {
+                mapUI.SetActive(false);
+            }
+        }
+        if (canEnter && !castControl.isHolding)
+        {
+            enterText.SetActive(true);
+        }
+        else
+        {
+            enterText.SetActive(false);
         }
     }
     public void GameStart()
