@@ -7,11 +7,14 @@ public class CarController : MonoBehaviour
     private const string Vertical = "Vertical";
 
     public bool isDriving;
+    public float rawSpeed;
+    public int speed;
 
     public Transform COM;
     public Rigidbody rb;
     public float horizontalInput;
     public float verticalInput;
+    public float reverseInput;
     private bool handbrake;
     public float currentSteerAngle;
     public float currentSteerAngleAckermann;
@@ -27,13 +30,14 @@ public class CarController : MonoBehaviour
     public SteeringType steerType;
 
     [SerializeField] [Range(0.0f, 1.0f)] private float awdFrontBias;
+    [SerializeField] [Range(0.0f, 1.0f)] private float frontBrakeBias;
     [SerializeField] private float motorForce;
     [SerializeField] private float brakeForce;
     [SerializeField] private float maxSteerAngle;
     [Tooltip("This is the turn angle for the inside wheel, usually set higher than outside wheel")]
     [SerializeField] private float ackermannAngle;
 
-    [SerializeField] private WheelCollider[] wheels = new WheelCollider[4];
+    [SerializeField] public WheelCollider[] wheels = new WheelCollider[4];
     [SerializeField] private GameObject[] wheelMeshes = new GameObject[4];
 
     private void Start()
@@ -43,6 +47,8 @@ public class CarController : MonoBehaviour
     private void Update()
     {
         UpdateWheels();
+        speed = (int)rawSpeed;
+        Debug.Log(reverseInput);
     }
 
     private void FixedUpdate()
@@ -50,6 +56,7 @@ public class CarController : MonoBehaviour
         GetInput();
         HandleMotor();
         HandleSteering();
+        rawSpeed = Vector3.Dot(rb.velocity, rb.transform.forward);
     }
 
 
@@ -59,6 +66,7 @@ public class CarController : MonoBehaviour
         {
             horizontalInput = Input.GetAxis(Horizontal);
             verticalInput = Input.GetAxis(Vertical);
+            reverseInput = Input.GetAxis("Reverse");
             handbrake = (Input.GetAxis("Jump") != 0) ? true : false;
         }
     }
@@ -95,9 +103,19 @@ public class CarController : MonoBehaviour
             case DriveType.FWD:
                 //TractionControl(frontLeftWheelCollider, frontRightWheelCollider);
                 float wheelPower = motorForce * tractionMultiplier;
-                print(wheelPower);
-                wheels[0].motorTorque = (verticalInput * wheelPower) ;
-                wheels[1].motorTorque = (verticalInput * wheelPower) ;
+                //print(wheelPower);
+                if (verticalInput > 0)
+                {
+                    wheels[0].motorTorque = (verticalInput * wheelPower);
+                    wheels[1].motorTorque = (verticalInput * wheelPower);
+                }
+                else
+                {
+                    wheels[0].brakeTorque = (brakeForce * verticalInput) * frontBrakeBias;
+                    wheels[1].brakeTorque = (brakeForce * verticalInput) * frontBrakeBias;
+                    wheels[2].brakeTorque = (brakeForce * verticalInput) * (1 - frontBrakeBias);
+                    wheels[3].brakeTorque = (brakeForce * verticalInput) * (1 - frontBrakeBias);
+                }
                 break;
 
             case DriveType.RWD:
@@ -111,15 +129,68 @@ public class CarController : MonoBehaviour
             case DriveType.AWD:
                 //TractionControl(rearLeftWheelCollider, frontRightWheelCollider);
                 float wheelPowerAWD = motorForce * tractionMultiplier;
-                print(wheelPowerAWD);
-                wheels[0].motorTorque = verticalInput * (wheelPowerAWD * awdFrontBias);
-                wheels[1].motorTorque = verticalInput * (wheelPowerAWD * awdFrontBias);
-                wheels[2].motorTorque = verticalInput * (wheelPowerAWD * (1 - awdFrontBias));
-                wheels[3].motorTorque = verticalInput * (wheelPowerAWD * (1 - awdFrontBias));
+                //print(wheelPowerAWD);
+                if (isDriving)
+                {
+                    if (verticalInput > 0)
+                    {
+                        wheels[0].motorTorque = verticalInput * (wheelPowerAWD * awdFrontBias);
+                        wheels[1].motorTorque = verticalInput * (wheelPowerAWD * awdFrontBias);
+                        wheels[2].motorTorque = verticalInput * (wheelPowerAWD * (1 - awdFrontBias));
+                        wheels[3].motorTorque = verticalInput * (wheelPowerAWD * (1 - awdFrontBias));
+                        wheels[0].brakeTorque = 0;
+                        wheels[1].brakeTorque = 0;
+                        wheels[2].brakeTorque = 0;
+                        wheels[3].brakeTorque = 0;
+                    }
+                    else if (reverseInput > 0)
+                    {
+                        wheels[0].motorTorque = -reverseInput * (wheelPowerAWD * awdFrontBias);
+                        wheels[1].motorTorque = -reverseInput * (wheelPowerAWD * awdFrontBias);
+                        wheels[2].motorTorque = -reverseInput * (wheelPowerAWD * (1 - awdFrontBias));
+                        wheels[3].motorTorque = -reverseInput * (wheelPowerAWD * (1 - awdFrontBias));
+                        wheels[0].brakeTorque = 0;
+                        wheels[1].brakeTorque = 0;
+                        wheels[2].brakeTorque = 0;
+                        wheels[3].brakeTorque = 0;
+                    }
+                    else if (verticalInput < 0)
+                    {
+                        wheels[0].brakeTorque = (brakeForce * -verticalInput) * frontBrakeBias;
+                        wheels[1].brakeTorque = (brakeForce * -verticalInput) * frontBrakeBias;
+                        wheels[2].brakeTorque = (brakeForce * -verticalInput) * (1 - frontBrakeBias);
+                        wheels[3].brakeTorque = (brakeForce * -verticalInput) * (1 - frontBrakeBias);
+                    }
+                    
+                }
+                else
+                {
+                    if (rawSpeed < 0.01 && rawSpeed > -0.01)
+                    {
+                        wheels[0].brakeTorque = 0;
+                        wheels[1].brakeTorque = 0;
+                        wheels[2].brakeTorque = 0;
+                        wheels[3].brakeTorque = 0;
+                    }
+                    else
+                    {
+                        wheels[0].brakeTorque = 3000;
+                        wheels[1].brakeTorque = 3000;
+                        wheels[2].brakeTorque = 3000;
+                        wheels[3].brakeTorque = 3000;
+                    }
+                }
+                //else if (verticalInput > 0 && rawSpeed < -0.05)
+                //{
+                //    wheels[0].brakeTorque = (brakeForce * verticalInput) * frontBrakeBias;
+                //    wheels[1].brakeTorque = (brakeForce * verticalInput) * frontBrakeBias;
+                //    wheels[2].brakeTorque = (brakeForce * verticalInput) * (1 - frontBrakeBias);
+                //    wheels[3].brakeTorque = (brakeForce * verticalInput) * (1 - frontBrakeBias);
+                //}
                 break;
         }
 
-        currentbrakeForce = isBraking ? brakeForce : 0f;
+        //currentbrakeForce = isBraking ? brakeForce : 0f;
 
     }
 

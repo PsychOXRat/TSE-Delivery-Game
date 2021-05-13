@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class CastController : MonoBehaviour
 {
+    [Header("Debug Info")]
+    public bool isHolding = false;
+
     [Header("InteractableInfo")]
     public float sphereCastRadius = 0.5f;
     public LayerMask CargoLayer;
@@ -11,6 +14,7 @@ public class CastController : MonoBehaviour
     public GameObject lookObject;
     private PhysicsObject physicsObject;
     private Camera mainCamera;
+    public GameObject uiText;
 
     [Header("Pickup")]
     [SerializeField] private Transform pickupParent;
@@ -48,14 +52,14 @@ public class CastController : MonoBehaviour
         RaycastHit hit;
         if (Physics.SphereCast(raycastPos, sphereCastRadius, mainCamera.transform.forward, out hit, maxDistance, CargoLayer))
         {
-
+            uiText.SetActive(true);
             lookObject = hit.collider.transform.root.gameObject;
 
         }
         else
         {
             lookObject = null;
-
+            uiText.SetActive(false);
         }
 
 
@@ -69,7 +73,7 @@ public class CastController : MonoBehaviour
                 //and we are looking an interactable object
                 if (lookObject != null)
                 {
-
+                    isHolding = true;
                     PickUpObject();
                 }
 
@@ -78,6 +82,7 @@ public class CastController : MonoBehaviour
             else
             {
                 BreakConnection();
+                isHolding = false;
             }
         }
 
@@ -108,6 +113,7 @@ public class CastController : MonoBehaviour
         pickupRB.constraints = RigidbodyConstraints.None;
         currentlyPickedUpObject = null;
         physicsObject.pickedUp = false;
+        isHolding = false;
         currentDist = 0;
     }
 
